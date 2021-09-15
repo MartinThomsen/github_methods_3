@@ -1,0 +1,33 @@
+---
+title: "Brushing up on the linear model"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise 1
+The general linear model: Y=Xβ+ϵ:
+Do a linear regression, expressing fuel usage as a function of weight using the function lm
+```{r}
+data(mtcars)
+model <- lm(mpg~wt, data = mtcars)
+```
+
+1. Extract β^, Y, Y^, X and ϵ from model (hint: have a look at the function model.matrix)
+
+```{r}
+
+```
+
+i. create a plot that illustrates Y and Y^ (if you are feeling ambitious, also include ϵ (hint: you can use the function arrows))
+
+```{r}
+plot(mpg,wt)
+```
+
+2. Estimate β for a quadratic model (y=β2x2+β1x+β0) using ordinary least squares without using lm; β^=(XTX)−1XTY (hint: add a third column to X from step 1)
+
+3. Compare your acquired β^ with the output of the corresponding quadratic model created using lm (hint: use the function I, see details under help and the sub-section formula operators here: https://www.datacamp.com/community/tutorials/r-formula-tutorial)
+create a plot that illustrates Y and Y^ (if you are feeling ambitious, also include ϵ (hint: you can use the function arrows))
