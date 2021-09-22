@@ -11,8 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 The general linear model: Y=Xβ+ϵ:
 Do a linear regression, expressing fuel usage as a function of weight using the function lm
 ```{r}
-data(mtcars)
-model <- lm(mpg~wt, data = mtcars)
+data<-mtcars
+model <- lm(data[,1]~data[,6])
 ```
 
 1. Extract β^, Y, Y^, X and ϵ from model (hint: have a look at the function model.matrix)
@@ -24,7 +24,7 @@ model <- lm(mpg~wt, data = mtcars)
 i. create a plot that illustrates Y and Y^ (if you are feeling ambitious, also include ϵ (hint: you can use the function arrows))
 
 ```{r}
-plot(mpg,wt)
+plot(data[,1],data[,6])
 ```
 
 2. Estimate β for a quadratic model (y=β2x2+β1x+β0) using ordinary least squares without using lm; β^=(XTX)−1XTY (hint: add a third column to X from step 1)
