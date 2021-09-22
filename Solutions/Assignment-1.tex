@@ -1,0 +1,332 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={practical\_exercise\_2, Methods 3, 2021, autumn semester},
+  pdfauthor={{[}FILL IN YOUR NAME{]}},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{practical\_exercise\_2, Methods 3, 2021, autumn semester}
+\author{{[}FILL IN YOUR NAME{]}}
+\date{{[}FILL IN THE DATE{]}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{assignment-1-using-mixed-effects-modelling-to-model-hierarchical-data}{%
+\section{Assignment 1: Using mixed effects modelling to model
+hierarchical
+data}\label{assignment-1-using-mixed-effects-modelling-to-model-hierarchical-data}}
+
+In this assignment we will be investigating the \emph{politeness}
+dataset of Winter and Grawunder (2012) and apply basic methods of
+multilevel modelling.
+
+\hypertarget{dataset}{%
+\subsection{Dataset}\label{dataset}}
+
+The dataset has been shared on GitHub, so make sure that the csv-file is
+on your current path. Otherwise you can supply the full path.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{politeness }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{\textquotesingle{}\textasciitilde{}/Uni/7 semester/Multilevel statistical modeling and machine learning/github\_methods\_3/week\_02/politeness.csv\textquotesingle{}}\NormalTok{) }\DocumentationTok{\#\# read in data}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{exercises-and-objectives}{%
+\section{Exercises and objectives}\label{exercises-and-objectives}}
+
+The objectives of the exercises of this assignment are:\\
+1) Learning to recognize hierarchical structures within datasets and
+describing them\\
+2) Creating simple multilevel models and assessing their fitness\\
+3) Write up a report about the findings of the study
+
+REMEMBER: In your report, make sure to include code that can reproduce
+the answers requested in the exercises below\\
+REMEMBER: This assignment will be part of your final portfolio
+
+\hypertarget{exercise-1---describing-the-dataset-and-making-some-initial-plots}{%
+\subsection{Exercise 1 - describing the dataset and making some initial
+plots}\label{exercise-1---describing-the-dataset-and-making-some-initial-plots}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\tightlist
+\item
+  Describe the dataset, such that someone who happened upon this dataset
+  could understand the variables and what they contain
+
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \tightlist
+  \item
+    Also consider whether any of the variables in \emph{politeness}
+    should be encoded as factors or have the factor encoding removed.
+    Hint: \texttt{?factor}\\
+  \end{enumerate}
+\item
+  Create a new data frame that just contains the subject \emph{F1} and
+  run two linear models; one that expresses \emph{f0mn} as dependent on
+  \emph{scenario} as an integer; and one that expresses \emph{f0mn} as
+  dependent on \emph{scenario} encoded as a factor
+
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \tightlist
+  \item
+    Include the model matrices, \(X\) from the General Linear Model, for
+    these two models in your report and describe the different
+    interpretations of \emph{scenario} that these entail
+  \item
+    Which coding of \emph{scenario}, as a factor or not, is more
+    fitting?
+  \end{enumerate}
+\item
+  Make a plot that includes a subplot for each subject that has
+  \emph{scenario} on the x-axis and \emph{f0mn} on the y-axis and where
+  points are colour coded according to \emph{attitude}
+
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \tightlist
+  \item
+    Describe the differences between subjects
+  \end{enumerate}
+\end{enumerate}
+
+\hypertarget{exercise-2---comparison-of-models}{%
+\subsection{Exercise 2 - comparison of
+models}\label{exercise-2---comparison-of-models}}
+
+For this part, make sure to have \texttt{lme4} installed.\\
+You can install it using \texttt{install.packages("lme4")} and load it
+using \texttt{library(lme4)}\\
+\texttt{lmer} is used for multilevel modelling
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mixed.model }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(}\AttributeTok{formula=}\NormalTok{..., }\AttributeTok{data=}\NormalTok{...)}
+\NormalTok{example.formula }\OtherTok{\textless{}{-}} \FunctionTok{formula}\NormalTok{(dep.variable }\SpecialCharTok{\textasciitilde{}}\NormalTok{ first.level.variable }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ second.level.variable))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\tightlist
+\item
+  Build four models and do some comparisons
+
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \tightlist
+  \item
+    a single level model that models \emph{f0mn} as dependent on
+    \emph{gender}
+  \item
+    a two-level model that adds a second level on top of i. where unique
+    intercepts are modelled for each \emph{scenario}
+  \item
+    a two-level model that only has \emph{subject} as an intercept
+  \item
+    a two-level model that models intercepts for both \emph{scenario}
+    and \emph{subject}
+  \item
+    which of the models has the lowest residual standard deviation, also
+    compare the Akaike Information Criterion \texttt{AIC}?
+  \item
+    which of the second-level effects explains the most variance?
+  \end{enumerate}
+\item
+  Why is our single-level model bad?
+
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \tightlist
+  \item
+    create a new data frame that has three variables, \emph{subject},
+    \emph{gender} and \emph{f0mn}, where \emph{f0mn} is the average of
+    all responses of each subject, i.e.~averaging across \emph{attitude}
+    and\_scenario\_
+  \item
+    build a single-level model that models \emph{f0mn} as dependent on
+    \emph{gender} using this new dataset
+  \item
+    make Quantile-Quantile plots, comparing theoretical quantiles to the
+    sample quantiles) using \texttt{qqnorm} and \texttt{qqline} for the
+    new single-level model and compare it to the old single-level model
+    (from 1).i). Which model's residuals (\(\epsilon\)) fulfil the
+    assumptions of the General Linear Model better?)
+  \item
+    Also make a quantile-quantile plot for the residuals of the
+    multilevel model with two intercepts. Does it look alright?
+  \end{enumerate}
+\item
+  Plotting the two-intercepts model
+
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \tightlist
+  \item
+    Create a plot for each subject, (similar to part 3 in Exercise 1),
+    this time also indicating the fitted value for each of the subjects
+    for each for the scenarios (hint use \texttt{fixef} to get the
+    ``grand effects'' for each gender and \texttt{ranef} to get the
+    subject- and scenario-specific effects)
+  \end{enumerate}
+\end{enumerate}
+
+\hypertarget{exercise-3---now-with-attitude}{%
+\subsection{Exercise 3 - now with
+attitude}\label{exercise-3---now-with-attitude}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\tightlist
+\item
+  Carry on with the model with the two unique intercepts fitted
+  (\emph{scenario} and \emph{subject}).
+
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \tightlist
+  \item
+    now build a model that has \emph{attitude} as a main effect besides
+    \emph{gender}
+  \item
+    make a separate model that besides the main effects of
+    \emph{attitude} and \emph{gender} also include their interaction
+  \item
+    describe what the interaction term in the model says about Korean
+    men's pitch when they are polite relative to Korean women's pitch
+    when they are polite (you don't have to judge whether it is
+    interesting)\\
+  \end{enumerate}
+\item
+  Compare the three models (1. gender as a main effect; 2. gender and
+  attitude as main effects; 3. gender and attitude as main effects and
+  the interaction between them. For all three models model unique
+  intercepts for \emph{subject} and \emph{scenario}) using residual
+  variance, residual standard deviation and AIC.\\
+\item
+  Choose the model that you think describe the data the best - and write
+  a short report on the main findings based on this model. At least
+  include the following:
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\roman{enumi}.}
+\tightlist
+\item
+  describe what the dataset consists of\\
+\item
+  what can you conclude about the effect of gender and attitude on pitch
+  (if anything)?\\
+\item
+  motivate why you would include separate intercepts for subjects and
+  scenarios (if you think they should be included)\\
+\item
+  describe the variance components of the second level (if any)\\
+\item
+  include a Quantile-Quantile plot of your chosen model
+\end{enumerate}
+
+\end{document}
