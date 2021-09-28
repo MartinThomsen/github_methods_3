@@ -27,6 +27,8 @@ The dataset has been shared on GitHub, so make sure that the csv-file is on your
 politeness <- read.csv('~/Uni/7 semester/Multilevel statistical modeling and machine learning/github_methods_3/week_02/politeness.csv') ## read in data
 library(dplyr)
 library(lme4)
+library(tidyverse)
+politeness=na.omit(politeness)
 ```
 
 # Exercises and objectives
@@ -41,6 +43,9 @@ REMEMBER: This assignment will be part of your final portfolio
 ## Exercise 1 - describing the dataset and making some initial plots
 
 1) Describe the dataset, such that someone who happened upon this dataset could understand the variables and what they contain
+
+A study was conducted to ascertain whether Korean native speakers change their pitch, as a result of speaking in formal or informal scenarios. Seven different scenarios were acted out, where each participant responded to both a formal and informal setup. 16 participants (9 females and 7 males) completed the scenarios and were scored on a number of variables.
+
 There are seven variables contained within the dataset:
 Subject: The identifier of each participant, where 'F' indicates a female participant and 'M' a male participant.
 Gender: The gender of the participant (female or male). This is a factor with two levels and is therefore transformed:
@@ -52,18 +57,18 @@ Attitude: Attitude denotes whether or not the participant is speaking in a forma
 ```{r}
 politeness$attitude<- factor(politeness$attitude)
 ```
-Total duration: Some sort of time.
-f0mn: Base frequency of the pitch of each participant. 
+Total duration: Time taken for each participant to complete their interaction.
+f0mn: Base frequency of the pitch of each participant (mean of pitch in sentence; Hz). 
 hiss_count: Number of time each participant takes an audible breath.
 `  
 2) Create a new data frame that just contains the subject _F1_ and run two linear models; one that expresses _f0mn_ as dependent on _scenario_ as an integer; and one that expresses _f0mn_ as dependent on _scenario_ encoded as a factor  
 ```{r}
 df.F1 <- data.frame(filter(politeness, subject == "F1"))
 
-regF1_integer = lm(politeness$f0mn~politeness$scenario)
+regF1_integer = lm(f0mn~scenario, data = df.F1)
 
 df.F1$scenario_factor <- factor(df.F1$scenario)
-regF1_factor = lm(df.F1$f0mn~df.F1$scenario_factor)
+regF1_factor = lm(f0mn~scenario_factor, df.F1)
 
 print(summary(regF1_integer))
 print(summary(regF1_factor))
@@ -72,62 +77,29 @@ print(summary(regF1_factor))
   i. Include the model matrices, $X$ from the General Linear Model, for these two models in your report and describe the different interpretations of _scenario_ that these entail
   For the linear model using scenario as a factor, it assumes that each scenario is qualitatively different.
 ```{r}
-head(model.matrix(regF1_factor, data = df.F1))
+model.matrix(regF1_factor, data = df.F1)
 ```
   Using scenario as a factor is meaningless, as this only provides an estimated mean for each scenario (in effect, the linear model is composed of 7 horisontal lines). This can be easily calculated without using a linear model.
   
   Using scenario as a nominal variable, it assumes they are quantitatively different. 
 ```{r}
-head(model.matrix(regF1_integer, data = df.F1))
+model.matrix(regF1_integer, data = df.F1)
 ```
   
   It is meaningless to assume that pitch in each scenario can be modelled based on a single scenario, i.e. scenario 4 can be predicted using information from scenario 1. 
 
   ii. Which coding of _scenario_, as a factor or not, is more fitting?
+  As there is no obvious or intuitive link between performances on each scenario, i.e. that 
   The hypothesis relates to changes in pitch in a formal/informal setting and therefore the changes in each scenario would be the outcome. Neither of these models inform us as researchers.
   
 3) Make a plot that includes a subplot for each subject that has _scenario_ on the x-axis and _f0mn_ on the y-axis and where points are colour coded according to _attitude_
     i. Describe the differences between subjects
 ```{r}
-politeness$colour[politeness$attitude=="pol"] = "red"
-politeness$colour[politeness$attitude=="inf"] = "black"
-F1 = filter(politeness, subject == "F1")
-F2 = filter(politeness, subject == "F2")
-F3 = filter(politeness, subject == "F3")
-F4 = filter(politeness, subject == "F4")
-F5 = filter(politeness, subject == "F5")
-F6 = filter(politeness, subject == "F6")
-F7 = filter(politeness, subject == "F7")
-F8 = filter(politeness, subject == "F8")
-F9 = filter(politeness, subject == "F9")
-M1 = filter(politeness, subject == "M1")
-M2 = filter(politeness, subject == "M2")
-M3 = filter(politeness, subject == "M3")
-M4 = filter(politeness, subject == "M4")
-M5 = filter(politeness, subject == "M5")
-M6 = filter(politeness, subject == "M6")
-M7 = filter(politeness, subject == "M7")
-
-par(mfrow=c(3,3))
-plot(F1$scenario, F1$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F2$scenario, F2$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F3$scenario, F3$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F4$scenario, F4$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F5$scenario, F5$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F6$scenario, F6$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F7$scenario, F7$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F8$scenario, F8$f0mn, col=F1$colour, ylim = c(100,300))
-plot(F9$scenario, F9$f0mn, col=F1$colour, ylim = c(100,300))
-par(mfrow=c(3,3))
-plot(M1$scenario, M1$f0mn, col=F1$colour, ylim = c(50,250))
-plot(M2$scenario, M2$f0mn, col=F1$colour, ylim = c(50,250))
-plot(M3$scenario, M3$f0mn, col=F1$colour, ylim = c(50,250))
-plot(M4$scenario, M4$f0mn, col=F1$colour, ylim = c(50,250))
-plot(M5$scenario, M5$f0mn, col=F1$colour, ylim = c(50,250))
-plot(M6$scenario, M6$f0mn, col=F1$colour, ylim = c(50,250))
-plot(M7$scenario, M7$f0mn, col=F1$colour, ylim = c(50,250))
+ggplot(data = politeness, aes(x = scenario, y = f0mn, color = attitude)) +
+  geom_point() + 
+  facet_wrap(~subject)
 ```
-    
+    DESCRIBE DIFFERENCES HERE.
     
 ## Exercise 2  - comparison of models
 
@@ -151,6 +123,12 @@ pitch_On_Gender = lm(f0mn~gender, data = politeness)
 politeness$scenario = factor(politeness$scenario)
 pitch_On_Gender_Scenario = lmer(f0mn~gender + (1|scenario), data = politeness)
 ```
+```{r}
+m1 <- lm(f0mn ~ gender, data = politeness)
+m2 <- lmer(f0mn ~ gender + (1|scenario), data = politeness)
+m3 <- lmer(f0mn ~ gender + (1|subject), data = politeness)
+m4 <- lmer(f0mn ~ gender + (1|scenario) + (1|subject), data = politeness)
+```
     
     iii. a two-level model that only has _subject_ as an intercept 
 ```{r}
@@ -164,18 +142,51 @@ pitch_On_Gender_Scenario = lmer(f0mn~gender + (1|scenario), data = politeness)
     
     v. which of the models has the lowest residual standard deviation, also compare the Akaike Information Criterion `AIC`?
 ```{r}
+tibble(sigma())
+AIC()
+```
+    AIC: Do you get the best model at lowest cost.
+    vi. which of the second-level effects explains the most variance?
+    Subject as the residual standard deviation is lower, than for gender.
+    
+2) Why is our single-level model bad?
+Because it does not take random effects into account. As such, it assumes that changes in outcome come from a single variable, whereas a second level model takes random effects into account. This reduces the error term and provides more explanation for the variance observed.
+    i. create a new data frame that has three variables, _subject_, _gender_ and _f0mn_, where _f0mn_ is the average of all responses of each subject, i.e. averaging across _attitude_ and_scenario_
+```{r}
+
+df.Subset = politeness %>%
+  group_by(subject, gender)%>%
+  summarise(base_pitch = mean(f0mn))
 
 ```
     
-    vi. which of the second-level effects explains the most variance?
-    
-2) Why is our single-level model bad?
-    i. create a new data frame that has three variables, _subject_, _gender_ and _f0mn_, where _f0mn_ is the average of all responses of each subject, i.e. averaging across _attitude_ and_scenario_
     ii. build a single-level model that models _f0mn_ as dependent on _gender_ using this new dataset
+```{r}
+singleModel = lm(base_pitch~gender, data = df.Subset)
+```
+    
     iii. make Quantile-Quantile plots, comparing theoretical quantiles to the sample quantiles) using `qqnorm` and `qqline` for the new single-level model and compare it to the old single-level model (from 1).i). Which model's residuals ($\epsilon$) fulfil the assumptions of the General Linear Model better?)
+```{r}
+
+```
+    
     iv. Also make a quantile-quantile plot for the residuals of the  multilevel model with two intercepts. Does it look alright?
+```{r}
+
+```
+    
 3) Plotting the two-intercepts model
     i. Create a plot for each subject, (similar to part 3 in Exercise 1), this time also indicating the fitted value for each of the subjects for each for the scenarios (hint use `fixef` to get the "grand effects" for each gender and `ranef` to get the subject- and scenario-specific effects)
+    Create plot
+```{r}
+fixedEffect = fixef(m4)
+randomEffect = ranef(m4)
+
+
+fixedEffect
+randomEffect
+```
+    
     
 ## Exercise 3 - now with attitude
 
