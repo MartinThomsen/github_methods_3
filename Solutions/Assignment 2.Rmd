@@ -32,32 +32,36 @@ The data is associated with Experiment 2 of the article at the following DOI htt
 
 1) Put the data from all subjects into a single data frame
 ```{r}
-list_of_files = list.files("C:/Users/rogue/Documents/MLSMML/github_methods_3/experiment_2/")
-df = data.frame()
 
-for(i in 1:length(list_of_files)){
-temp_df <- read.csv(sprintf("C:/Users/rogue/Documents/MLSMML/github_methods_3/experiment_2/%s",list_of_files[i]))
-df = rbind(df,temp_df)}
-summary(df)
+list_of_files = list.files(path = "experiment_2", pattern = ".csv", full.names = T)
+df = read_csv(list_of_files)
 ```
 
 2) Describe the data and construct extra variables from the existing variables  
     i. add a variable to the data frame and call it _correct_ (have it be a _logical_ variable). Assign a 1 to each row where the subject indicated the correct answer and a 0 to each row where the subject indicated the incorrect answer (__Hint:__ the variable _obj.resp_ indicates whether the subject answered "even", _e_ or "odd", _o_, and the variable _target_type_ indicates what was actually presented.
 ```{r}
 
-for(i in 1:length(df$trial.type)) {
+# Explain syntax
+
+for(i in 1:length(df$trial.type)) 
+{
   
     if (df$obj.resp[i]== 'o' && df$target.type[i] == 'odd')
     {
      df$correct[i] = 1
     }
+  
     else if(df$obj.resp[i]== 'e' && df$target.type[i] == 'even'){
     df$correct[i] = 1
-  }
-    else{
+    }
+  
+  
+    else
+    {
       df$correct[i] = 0
-      }
+    }
 }
+
 df$correct = factor(df$correct)
 ```
     
