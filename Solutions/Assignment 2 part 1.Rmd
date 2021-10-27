@@ -1,5 +1,5 @@
 ---
-title: "practical_exercise_3, Methods 3, 2021, autumn semester"
+title: "Portfolio assignment 2, part 1"
 author: 'MARTIN THOMSEN'
 date: "04-10-2021"
 output: html_document
@@ -17,6 +17,7 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(lme4)
+library(car)
 ```
 
 # Exercises and objectives
@@ -32,54 +33,51 @@ The data is associated with Experiment 2 of the article at the following DOI htt
 
 1) Put the data from all subjects into a single data frame
 ```{r}
-
+# Read files and places in dataframe
 list_of_files = list.files(path = "experiment_2", pattern = ".csv", full.names = T)
-df = read_csv(list_of_files)
+experiment_df = read_csv(list_of_files)
 ```
 
 2) Describe the data and construct extra variables from the existing variables  
     i. add a variable to the data frame and call it _correct_ (have it be a _logical_ variable). Assign a 1 to each row where the subject indicated the correct answer and a 0 to each row where the subject indicated the incorrect answer (__Hint:__ the variable _obj.resp_ indicates whether the subject answered "even", _e_ or "odd", _o_, and the variable _target_type_ indicates what was actually presented.
 ```{r}
+# Create variable and set all to 0
+experiment_df$correct = 0
 
-# Explain syntax
-
-for(i in 1:length(df$trial.type)) 
+# Loop through data and change "correct" to 1 where response matches target type
+for(i in 1:length(experiment_df$trial.type)) 
 {
   
-    if (df$obj.resp[i]== 'o' && df$target.type[i] == 'odd')
+    if (experiment_df$obj.resp[i]== 'o' && experiment_df$target.type[i] == 'odd')
     {
-     df$correct[i] = 1
+     experiment_df$correct[i] = 1
     }
   
-    else if(df$obj.resp[i]== 'e' && df$target.type[i] == 'even'){
-    df$correct[i] = 1
+    else if(experiment_df$obj.resp[i]== 'e' && experiment_df$target.type[i] == 'even'){
+    experiment_df$correct[i] = 1
     }
   
-  
-    else
-    {
-      df$correct[i] = 0
-    }
 }
 
-df$correct = factor(df$correct)
+# Set as factor
+experiment_df$correct = factor(experiment_df$correct)
 ```
     
   ii. describe what the following variables in the data frame contain, _trial.type_, _pas_, _trial_, _target.contrast_, _cue_, _task_, _target_type_, _rt.subj_, _rt.obj_, _obj.resp_, _subject_ and _correct_. (That means you can ignore the rest of the variables in your description). For each of them, indicate and argue for what `class` they should be classified into, e.g. _factor_, _numeric_ etc.  
     Trial type: Two different trial types were defined, staircase and experiment. Staircase was utilised to estimate threshold visibility. Based on the staircase results, a target contrast is fixed for use in the experiment setup.
 ```{r}
-df$trial.type = factor(df$trial.type)
+experiment_df$trial.type = factor(experiment_df$trial.type)
 ```
     Pas: A self reported score of confidence, i.e. how certain the subject felt about their answer. Although the results can only be integers between 1 and 4, it is the case that 4 represents a higher level of confidence than 1 and therefore this variable should remain numerical (integer).
     Trial: Each staircase and experiment has been completed a number of times. Trial is an integer (starting at 0), denoting the trial number. While trial number is not qualitatively meaningful, it should, nonetheless, remain as an integer variable, as it is possible that individuals may improve as a result of more experience with the trials.
     Target contrast: Represents how much of a contrast there is between the displayed digit and the background. This contrast is a number between 0.01 and 1, where a value close to 1 means the contrast is high and 0.01 that contrast is low. Value of target contrast represents a qualitative difference and therefore the variable should remain numerical.
     Cue: Information given to the subject regarding the nature of the stimuli to be presented. As such, the subject would be informed of whether the stimuli would come from a set of two, four or eight numbers. A total of 36 variations were used for these cues. The cues are not ranked, i.e. it is not expected that individual performance will vary across each cue, at least not systematically. Cue should therefore be treated as a factor.
 ```{r}
-df$cue = factor(df$cue)
+experiment_df$cue = factor(experiment_df$cue)
 ```
     Task: 
 ```{r}
-df$task = factor(df$task)
+experiment_df$task = factor(experiment_df$task)
 ```
     
     Target type
@@ -91,27 +89,28 @@ df$task = factor(df$task)
     
   iii. for the staircasing part __only__, create a plot for each subject where you plot the estimated function (on the _target.contrast_ range from 0-1) based on the fitted values of a model (use `glm`) that models _correct_ as dependent on _target.contrast_. These plots will be our _no-pooling_ model. Comment on the fits - do we have enough data to plot the logistic functions?  
 ```{r}
-staircase_df = subset(df, df$trial.type == "staircase")
-no_pooling_model = glm(correct~target.contrast, data = staircase_df, family = binomial)
-beta.hat = no_pooling_model$coefficients
+# Creating new dataframe as a subset of original. Selecting only data with trial type "staircase"
+staircase_df = subset(experiment_df, experiment_df$trial.type == "staircase")
 
-X = model.matrix(no_pooling_model)
-g = function(x) log(x/(1-x))
-inv.g = function(x) exp(x)/(1+exp(x))
+# Creating no pooling model using glm() function
+no_pooling_model = glm(correct ~ target.contrast, data = staircase_df, family = "binomial")
 
-y.hat = inv.g(X%*%beta.hat)
-y.hat.linear = X%*%beta.hat
-
-plot(X, g(X))
-plot(X, inv.g(X))
-ggplot(staircase_df, aes(x=target.contrast, y=correct)) + 
-  geom_point(alpha=.5) +
-  stat_smooth(method="glm", se=FALSE, method.args = list(family=binomial))
+# Plotting using ggplot
+ggplot(data = staircase_df, aes(x = target.contrast, y = fitted(no_pooling_model), color = correct)) +
+  geom_point() + 
+  facet_wrap( ~ subject)
 ```
   
   iv. on top of those plots, add the estimated functions (on the _target.contrast_ range from 0-1) for each subject based on partial pooling model (use `glmer` from the package `lme4`) where unique intercepts and slopes for _target.contrast_ are modelled for each _subject_  
 ```{r}
+# Creating a pooled model using glm() function
+pooled_model = glmer(correct ~ target.contrast + (1+target.contrast|subject), data = staircase_df, family = binomial)
 
+# Plotting using ggplot
+ggplot(data = staircase_df) +
+  geom_point(aes(x = target.contrast, y = fitted(no_pooling_model), color = "no pooling")) + 
+  geom_point(aes(x = target.contrast, y = fitted(pooled_model), color = "partial pooling")) + 
+  facet_wrap( ~ subject)
 ```
   
   
@@ -120,19 +119,92 @@ ggplot(staircase_df, aes(x=target.contrast, y=correct)) +
 ## Exercise 2
 
 Now we __only__ look at the _experiment_ trials (_trial.type_)  
+```{r}
+# Creating new dataframe as a subset of original. Selecting only data with trial type "experiment"
+trial_df <- subset(experiment_df, experiment_df$trial.type == "experiment")
+```
 
 1) Pick four subjects and plot their Quantile-Quantile (Q-Q) plots for the residuals of their objective response times (_rt.obj_) based on a model where only intercept is modelled  
 ```{r}
-subject1_model
-subject2_model
-subject3_model
-subject4_model
-qqplot()
+# Creating four subsets of data, selecting for subject
+subject_1 = subset(experiment_df, experiment_df$subject == "001")
+subject_3 = subset(experiment_df, experiment_df$subject == "003")
+subject_5 = subset(experiment_df, experiment_df$subject == "005")
+subject_7 = subset(experiment_df, experiment_df$subject == "007")
+
+# Creating a linear model for each selected subject
+subject1_model = lm(rt.obj~1, data = subject_1)
+subject3_model = lm(rt.obj~1, data = subject_3)
+subject5_model = lm(rt.obj~1, data = subject_5)
+subject7_model = lm(rt.obj~1, data = subject_7)
+
+# Plotting qqplot
+par(mfrow=c(2,2))
+qqPlot(subject1_model)
+qqPlot(subject3_model)
+qqPlot(subject5_model)
+qqPlot(subject7_model)
 ```
 
-    i. comment on these    
-    ii. does a log-transformation of the response time data improve the Q-Q-plots?  
+  i. comment on these
+
+  ii. does a log-transformation of the response time data improve the Q-Q-plots?
+    ```{r}
+# Plotting the log-transformed data. Transformation occurs directly in the model creation
+par(mfrow=c(2,2))
+qqPlot(lm(log(rt.obj) ~ 1, data = subject_1))
+qqPlot(lm(log(rt.obj) ~ 1, data = subject_3))
+qqPlot(lm(log(rt.obj) ~ 1, data = subject_5))
+qqPlot(lm(log(rt.obj) ~ 1, data = subject_7))
+```
 2) Now do a partial pooling model modelling objective response times as dependent on _task_? (set `REML=FALSE` in your `lmer`-specification)  
+
+```{r}
+# Partial pooled model created with subject as random intercept
+subject_model = lmer(log(rt.obj) ~ task + (1|subject), data = experiment_df, REML = FALSE)
+
+# Partial pooled model including subject and pas as random intercepts
+pas_model = lmer(log(rt.obj) ~ task + (1|subject) + (1|pas), data = experiment_df, REML = FALSE)
+
+# Partial pooled model including subject and trial as random intercepts
+trial_model = lmer(log(rt.obj) ~ task + (1|subject) + (1|trial), data = experiment_df, REML = FALSE)
+
+# Combining model names in order to provide a prettier output to reader
+models = c("subject_model", "pas_model", "trial_model")
+
+# Compute residual standard deviation and AIC
+sigmas = tibble(sigma(subject_model), sigma(pas_model), sigma(trial_model))
+Akaike = tibble(AIC(subject_model, pas_model, trial_model))
+
+# Display as combined data
+cbind(models, Akaike, sigmas)
+```
+
+```{r}
+## NOTE: Model names have not been changed in order to reflect that these are more complex versions of the ones above.
+
+# Partial pooled model created with a task by subject interaction only
+subject_model = lmer(log(rt.obj) ~ task + (1+task|subject), data = experiment_df, REML = FALSE)
+
+# Partial pooled model created with a task by pas interaction in addition to subject as random intercept
+pas_model = lmer(log(rt.obj) ~ task + (1+task|pas) + (1|subject), data = experiment_df, REML = FALSE)
+
+# Partial pooled model created with a task by trial interaction in addition to subject as random intercept
+trial_model = lmer(log(rt.obj) ~ task + (1+task|trial) + (1|subject), data = experiment_df, REML = FALSE)
+
+# Combining model names in order to provide a prettier output to reader
+models = c("subject_model", "pas_model", "trial_model")
+
+# Compute residual standard deviation and AIC
+sigmas = tibble(sigma(subject_model), sigma(pas_model), sigma(trial_model))
+Akaike = tibble(AIC(subject_model, pas_model, trial_model))
+
+# Display as combined data
+cbind(models, Akaike, sigmas)
+```
+
+
+
     i. which would you include among your random effects and why? (support your choices with relevant measures, taking into account variance explained and number of parameters going into the modelling)  
     ii. explain in your own words what your chosen models says about response times between the different tasks  
 3) Now add _pas_ and its interaction with _task_ to the fixed effects  

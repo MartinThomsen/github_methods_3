@@ -1,5 +1,5 @@
 ---
-title: "Assignment 1: Using mixed effects modelling to model hierarchical data"
+title: "Portfolio assignment 1: Using mixed effects modelling to model hierarchical data"
 author: 'MARTIN THOMSEN'
 date: '22-09-2021'
 output:
