@@ -1,7 +1,7 @@
 ---
 title: "practical_exercise_6, Methods 3, 2021, autumn semester"
-author: '[FILL IN YOUR NAME]'
-date: "[FILL IN THE DATE]"
+author: '[Martin Thomsen]'
+date: "[03-11-2021]"
 output: html_document
 ---
 
@@ -29,14 +29,6 @@ Also create a text file that is called _.Renviron_ (remember the dot) placed in 
 library(reticulate)
 print(conda_list())
 ```
-
-To update your environment based on the updated `methods3_environment.yml` file, go to your _week_06_ folder and run the following from a _bash_ interpreter (e.g. _terminal_):  
-
-```{bash, eval=FALSE}
-conda env create --force -f methods3_environment.yml
-```
-
-The `--force` flag allows for overwriting  
 
 ## Good to know about _Python_ (in no particular order)
 
@@ -121,7 +113,7 @@ plt.plot([2, 1], [2, 1], 'ro') # scatter plot (red)
 plt.xlabel('a label')
 plt.title('a title')
 plt.legend(['a legend', 'another legend'])
-# plt.show()
+plt.show()
 ```
 
 1) Do a linear regression based on _x_, _X_ and _y_ below (_y_ as the dependent variable) (Exercise 1.1)  
@@ -149,6 +141,15 @@ X = np.zeros(shape=(n_samples, 2))
 X[:, 0] = x ** 0
 X[:, 1] = x ** 1
 
+xtx = np.matrix.transpose(X)@ X
+Beta_hat = np.linalg.inv(xtx) @ np.transpose(X)@ y
+print(Beta_hat)
+y_pred = Beta_hat[0] + Beta_hat[1]*x
+
+plt.figure()
+plt.scatter(x,y)
+plt.plot(x, y_pred)
+plt.show()
 ```
 
 
@@ -159,6 +160,7 @@ y2 = np.array([10, 4, 2, 1, -3])
 y3 = np.array([15, -2, 0, 0, 3])
 y = np.concatenate((y1, y2, y3))
 
+x_matrix = np.matrix([np.mean(y1),np.mean(y2),np.mean(y3)])
 ```
 
 # EXERCISE 2 - Estimate bias and variance based on a true underlying function  
