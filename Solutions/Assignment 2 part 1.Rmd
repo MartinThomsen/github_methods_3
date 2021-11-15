@@ -64,14 +64,15 @@ experiment_df$correct = factor(experiment_df$correct)
 ```
     
   ii. describe what the following variables in the data frame contain, _trial.type_, _pas_, _trial_, _target.contrast_, _cue_, _task_, _target_type_, _rt.subj_, _rt.obj_, _obj.resp_, _subject_ and _correct_. (That means you can ignore the rest of the variables in your description). For each of them, indicate and argue for what `class` they should be classified into, e.g. _factor_, _numeric_ etc.  
-    Trial type: Two different trial types were defined, staircase and experiment. Staircase was utilised to estimate threshold visibility. Based on the staircase results, a target contrast is fixed for use in the experiment setup.
+
+  Trial type: Two different trial types were defined, staircase and experiment. Staircase was utilised to estimate threshold visibility. Based on the staircase results, a target contrast is fixed for use in the experiment setup.
 ```{r}
 experiment_df$trial.type = factor(experiment_df$trial.type)
 ```
-    Pas: A self reported score of confidence, i.e. how certain the subject felt about their answer. Although the results can only be integers between 1 and 4, it is the case that 4 represents a higher level of confidence than 1 and therefore this variable should remain numerical (integer).
-    Trial: Each staircase and experiment has been completed a number of times. Trial is an integer (starting at 0), denoting the trial number. While trial number is not qualitatively meaningful, it should, nonetheless, remain as an integer variable, as it is possible that individuals may improve as a result of more experience with the trials.
-    Target contrast: Represents how much of a contrast there is between the displayed digit and the background. This contrast is a number between 0.01 and 1, where a value close to 1 means the contrast is high and 0.01 that contrast is low. Value of target contrast represents a qualitative difference and therefore the variable should remain numerical.
-    Cue: Information given to the subject regarding the nature of the stimuli to be presented. As such, the subject would be informed of whether the stimuli would come from a set of two, four or eight numbers. A total of 36 variations were used for these cues. The cues are not ranked, i.e. it is not expected that individual performance will vary across each cue, at least not systematically. Cue should therefore be treated as a factor.
+  Pas: A self reported score of confidence, i.e. how certain the subject felt about their answer. Although the results can only be integers between 1 and 4, it is the case that 4 represents a higher level of confidence than 1 and therefore this variable should remain numerical (integer).
+  Trial: Each staircase and experiment has been completed a number of times. Trial is an integer (starting at 0), denoting the trial number. While trial number is not qualitatively meaningful, it should, nonetheless, remain as an integer variable, as it is possible that individuals may improve as a result of more experience with the trials.
+  Target contrast: Represents how much of a contrast there is between the displayed digit and the background. This contrast is a number between 0.01 and 1, where a value close to 1 means the contrast is high and 0.01 that contrast is low. Value of target contrast represents a qualitative difference and therefore the variable should remain numerical.
+  Cue: Information given to the subject regarding the nature of the stimuli to be presented. As such, the subject would be informed of whether the stimuli would come from a set of two, four or eight numbers. A total of 36 variations were used for these cues. The cues are not ranked, i.e. it is not expected that individual performance will vary across each cue, at least not systematically. Cue should therefore be treated as a factor.
 ```{r}
 experiment_df$cue = factor(experiment_df$cue)
 ```

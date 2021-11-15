@@ -1,8 +1,10 @@
 ---
 title: "Portfolio assignment 2, part 2"
-author: 'MARTIN THOMSEN'
+author: "MARTIN THOMSEN"
 date: "14-11-2021"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 <style type="text/css">
@@ -116,11 +118,73 @@ logLik(partial_model)
 ```
     
 2) Use log-likelihood ratio tests to argue for the addition of predictor variables, start from the null model, `glm(correct ~ 1, 'binomial', data)`, then add subject-level intercepts, then add a group-level effect of _target.frames_ and finally add subject-level slopes for _target.frames_. Also assess whether or not a correlation between the subject-level slopes and the subject-level intercepts should be included.
+```{r}
+# Creating models
+null_model = glm(correct ~ 1, family = binomial, data = trial_df) # Null model
+subject_model = glmer(correct ~ 1 +(1|subject), family = binomial, data = trial_df) # Added subject-level intercept ((1|subject))
+target_frame_model = glmer(correct ~ target.frames + (1|subject), family = binomial, data = trial_df) # Target.frames added as group-level effect (target.frames)
+slope_model = glmer(correct ~ target.frames + (target.frames|subject), family = binomial, data = trial_df) # Subject-level slopes for target.frames added (target.frames|subject)
+correlation_model = glmer(correct ~ target.frames + (target.frames||subject), family = binomial, data = trial_df) # Honestly not sure if this is correct, I was having a difficult time finding documentation online
+
+# Combining model names in order to provide a prettier output to reader
+model = c("null_model", "subject_model", "target_frame_model", "slope_model", "correlation_model")
+log_likelihood = c(logLik(null_model), logLik(subject_model), logLik(target_frame_model), logLik(slope_model), logLik(correlation_model))
+# Display as combined data
+cbind(model, log_likelihood)
+```
+Assuming the correlation model has been modelled correctly, it has a log likelihood of -10460, whereas the slope model has a log likelihood of -10448. The higher the log likelihood, the better the model fits data. As such, the slop model is the superior model.
     i. write a short methods section and a results section where you indicate which model you chose and the statistics relevant for that choice. Include a plot of the estimated group-level function with `xlim=c(0, 8)` that includes the estimated subject-specific functions.
-    ii. also include in the results section whether the fit didn't look good for any of the subjects. If so, identify those subjects in the report, and judge (no statistical test) whether their performance (accuracy) differed from that of the other subjects. Was their performance better than chance? (Use a statistical test this time) (50 %)  
-3) Now add _pas_ to the group-level effects - if a log-likelihood ratio test justifies this, also add the interaction between _pas_ and _target.frames_ and check whether a log-likelihood ratio test justifies this  
-    i. if your model doesn't converge, try a different optimizer  
+    The log likelihood values of the slope model and correlation model are very close to each other. Here, a comparison of the two models, to determine if the difference is significant, must be carried out. This can be done using the anova function.
+```{r}
+anova(slope_model, correlation_model)
+```
+    The anova shows that the slope model is significantly different from the correlation model. This means that this model should be used going forward.
+    Plotting the group level function (the original pooled model) and the slope model (containing the subject specific level):
+```{r}
+# Plotting using ggplot
+ggplot(data = trial_df) +
+  geom_point(aes(x = target.frames, y = fitted(pooled_model), color = "Pooled model")) +
+  geom_point(aes(x = target.frames, y = fitted(slope_model), color = "Added slope")) +
+  facet_wrap( ~ subject) +
+  xlim(0,8)
+```
+    ii. also include in the results section whether the fit didn't look good for any of the subjects. If so, identify those subjects in the report, and judge (no statistical test) whether their performance (accuracy) differed from that of the other subjects. Was their performance better than chance? (Use a statistical test this time) (50 %)
+    Looking at the plots above, it appears that data on participants 12 and 24 is poorly fitted using the group level model. As we are looking at whether the performance was above chance:
+```{r}
+subject12_df = subset(trial_df, subject == "12")
+subject24_df = subset(trial_df, subject == "24")
+
+t.test(subject12_df$correct, mu = 0.5)
+t.test(subject24_df$correct, mu = 0.5)
+```
+Both performances were above chance, with a p-value < 0.05.
+    
+3) Now add _pas_ to the group-level effects - if a log-likelihood ratio test justifies this, also add the interaction between _pas_ and _target.frames_ and check whether a log-likelihood ratio test justifies this
+```{r}
+pas_model = glmer(correct ~ target.frames + pas + (target.frames|subject), family = binomial, data = trial_df)
+log_likelihood_fun(pas_model, trial_df$correct)
+interaction_model = glmer(correct ~ target.frames * pas + (target.frames|subject), family = binomial, data = trial_df)
+logLik(interaction_model)
+```
+
+    i. if your model doesn't converge, try a different optimizer
+```{r}
+interaction_model = glmer(correct ~ target.frames * pas + (target.frames|subject), family = binomial, data = trial_df, control = glmerControl(optimizer="bobyqa"))
+logLik(interaction_model)
+```
+   The log likelihood tests suggest that the model containing the target frames by pas interaction is the better model. This is supported by the anova test below, which shows that the interaction model is significantly better.
+```{r}
+anova(slope_model, pas_model, interaction_model)
+```
     ii. plot the estimated group-level functions over `xlim=c(0, 8)` for each of the four PAS-ratings - add this plot to your report (see: 5.2.i) and add a description of your chosen model. Describe how _pas_ affects accuracy together with target duration if at all. Also comment on the estimated functions' behaviour at target.frame=0 - is that behaviour reasonable?  
+```{r}
+# Plotting using ggplot
+ggplot(data = trial_df) +
+  geom_point(aes(x = target.frames, y = fitted(interaction_model), color = pas)) +
+  facet_wrap( ~ pas) +
+  xlim(0,8)
+```
+Only points have been plotted here and not a line. A line would have an intercept at x = 0 (i.e. at zero frames), which is meaningless. Instead, using points only, it is possible to see how accuracy is dependent on both the self-reported confidence and length of exposure to the stimuli. The span on accuracy is reduced the more certain participants rate themselves (pas = 4) and the accuracy is generally higher, regardless of the length of stimuli. 
 
 # EXERCISE 6 - Test linear hypotheses
 
@@ -128,25 +192,36 @@ In this section we are going to test different hypotheses. We assume that we hav
 We want to test a hypothesis for each of the three neighbouring differences in PAS, i.e. the difference between 2 and 1, the difference between 3 and 2 and the difference between 4 and 3. More specifically, we want to test the hypothesis that accuracy increases faster with objective evidence if subjective evidence is higher at the same time, i.e. we want to test for an interaction.  
 
 1) Fit a model based on the following formula: `correct ~ pas * target.frames + (target.frames | subject))`
-    i. First, use `summary` (yes, you are allowed to!) to argue that accuracy increases faster with objective evidence for PAS 2 than for PAS 1. 
+    i. First, use `summary` (yes, you are allowed to!) to argue that accuracy increases faster with objective evidence for PAS 2 than for PAS 1.
+```{r}
+summary(interaction_model)
+```
+Accuracy increases with an increase in target frames by 0.115 and accuracy is clearly worse at pas = 2 and pas = 3 compared to pas = 1 and 4. However, the increase in accuracy for pas = 4 is insignificant (p = 0.42). The target frame by pas interaction shows that accuracy increases by 0.447, 0.749 and 0.76 respectively for pas = 2, 3 and 4 respectively. 
+    
 2) `summary` won't allow you to test whether accuracy increases faster with objective evidence for PAS 3 than for PAS 2 (unless you use `relevel`, which you are not allowed to in this exercise). Instead, we'll be using the function `glht` from the `multcomp` package
     i. To redo the test in 6.1.i, you can create a _contrast_ vector. This vector will have the length of the number of estimated group-level effects and any specific contrast you can think of can be specified using this. For redoing the test from 6.1.i, the code snippet below will do
-    ii. Now test the hypothesis that accuracy increases faster with objective evidence for PAS 3 than for PAS 2.
-    iii. Also test the hypothesis that accuracy increases faster with objective evidence for PAS 4 than for PAS 3
-3) Finally, test that whether the difference between PAS 2 and 1 (tested in 6.1.i) is greater than the difference between PAS 4 and 3 (tested in 6.2.iii)
-
-### Snippet for 6.2.i
+    The purpose is to determine if the rate of accuracy increases more with target frames, at each level of pas. Therefore, the target frame by pas interaction will be compared for the different levels of pas.
 ```{r, eval=FALSE}
-## testing whether PAS 2 is different from PAS 1
+# Testing whether rate of accuracy as a result of target frames increases for pas 2 over pas 1
 contrast.vector <- matrix(c(0, 0, 0, 0, 0, 1, 0, 0), nrow=1)
-gh <- glht(pas.intact.tf.ranslopeint.with.corr, contrast.vector)
-print(summary(gh))
-## as another example, we could also test whether there is a difference in
-## intercepts between PAS 2 and PAS 3
-contrast.vector <- matrix(c(0, -1, 1, 0, 0, 0, 0, 0), nrow=1)
-gh <- glht(pas.intact.tf.ranslopeint.with.corr, contrast.vector)
-print(summary(gh))
+gh_1 <- glht(interaction_model, contrast.vector)
+print(summary(gh_1))
+# Testing whether rate of accuracy as a result of target frames increases for pas 3 over pas 2
+contrast.vector <- matrix(c(0, 0, 0, 0, 0, -1, 1, 0), nrow=1)
+gh_2 <- glht(m_target.pas.interact, contrast.vector)
+print(summary(gh_2))
+
+# Testing whether rate of accuracy as a result of target frames increases for pas 4 over pas 3
+contrast.vector <- matrix(c(0, 0, 0, 0, 0, 0, -1, 1), nrow=1)
+gh_3 <- glht(m_target.pas.interact, contrast.vector)
+print(summary(gh_3))
 ```
+    ii. Now test the hypothesis that accuracy increases faster with objective evidence for PAS 3 than for PAS 2.
+    The results above suggest that the rate of increase of performance with increase in target frames is higher for pas 3 over pas 2 (0.302, p-value<0.05).
+    iii. Also test the hypothesis that accuracy increases faster with objective evidence for PAS 4 than for PAS 3
+    There is no significant change in rate of accuracy between pas 3 and pas 4 (p-value = 0.887).
+3) Finally, test that whether the difference between PAS 2 and 1 (tested in 6.1.i) is greater than the difference between PAS 4 and 3 (tested in 6.2.iii)
+The difference between pas 3 and 4 is not significant and as such, the significant difference between pas 2 and 1 (0.447) is greater.
 
 # EXERCISE 7 - Estimate psychometric functions for the Perceptual Awareness Scale and evaluate them  
 
@@ -156,31 +231,60 @@ It has four parameters: _a_, which can be interpreted as the minimum accuracy le
   
 We can define a function of a residual sum of squares as below
 
-```{r, eval=FALSE}
+```{r}
 RSS <- function(dataset, par)
 {
     ## "dataset" should be a data.frame containing the variables x (target.frames)
     ## and y (correct)
     
     ## "par" are our four parameters (a numeric vector) 
-    ## par[1]=a, par[2]=b, par[3]=c, par[4]=d
-    x <- dataset$x
-    y <- dataset$y
-    y.hat <- ## you fill in the estimate of y.hat
+    a = par[1]
+    b = par[2]
+    c = par[3]
+    d = par[4]
+    x <- dataset$target.frames
+    y <- dataset$correct
+    y.hat <- a + ((b-a)/(1+exp(1)^((c-x)/d))) 
     RSS <- sum((y - y.hat)^2)
     return(RSS)
 }
 ```
 
 1) Now, we will fit the sigmoid for the four PAS ratings for Subject 7
+```{r}
+subject_7 <- trial_df %>% 
+  filter(subject == "7") %>% 
+  dplyr::select(target.frames, correct, pas)
+```
     i. use the function `optim`. It returns a list that among other things contains the four estimated parameters. You should set the following arguments:  
-    `par`: you can set _c_ and _d_ as 1. Find good choices for _a_ and _b_ yourself (and argue why they are appropriate)  
+    `par`: you can set _c_ and _d_ as 1. Find good choices for _a_ and _b_ yourself (and argue why they are appropriate)
+    As minimum accuracy should be chance, a = 0.5. Maximum accuracy is 1 and therefore b = 1.
+```{r}
+par = c(0.5,1,1,1)
+```
     `fn`: which function to minimise?  
     `data`: the data frame with _x_, _target.frames_, and _y_, _correct_ in it  
     `method`: 'L-BFGS-B'  
-    `lower`: lower bounds for the four parameters, (the lowest value they can take), you can set _c_ and _d_ as `-Inf`. Find good choices for _a_ and _b_ yourself (and argue why they are appropriate)  
-    `upper`: upper bounds for the four parameters, (the highest value they can take) can set _c_ and _d_ as `Inf`. Find good choices for _a_ and _b_ yourself (and argue why they are appropriate)    
+    `lower`: lower bounds for the four parameters, (the lowest value they can take), you can set _c_ and _d_ as `-Inf`. Find good choices for _a_ and _b_ yourself (and argue why they are appropriate)
+    Lower bound must be 0 as all probabilities must be between 0 and 1.
+    `upper`: upper bounds for the four parameters, (the highest value they can take) can set _c_ and _d_ as `Inf`. Find good choices for _a_ and _b_ yourself (and argue why they are appropriate)
+    As above, 1 is appropriate as all probabilities must fall between 0 and 1.
+```{r}
+subject7_pas1 = optim(data = filter(subject_7, pas == 1), fn = RSS, par = par, method = 'L-BFGS-B', lower = c(0, 0, -Inf, -Inf), upper = c(1, 1, Inf, Inf))
+subject7_pas2 = optim(data = filter(subject_7, pas == 2), fn = RSS, par = par, method = 'L-BFGS-B', lower = c(0, 0, -Inf, -Inf), upper = c(1, 1, Inf, Inf))
+subject7_pas3 = optim(data = filter(subject_7, pas == 3), fn = RSS, par = par, method = 'L-BFGS-B', lower = c(0, 0, -Inf, -Inf), upper = c(1, 1, Inf, Inf))
+subject7_pas4 = optim(data = filter(subject_7, pas == 4), fn = RSS, par = par, method = 'L-BFGS-B', lower = c(0, 0, -Inf, -Inf), upper = c(1, 1, Inf, Inf))
+```
+The values for par are:
+```{r}
+par_values = cbind(subject7_pas1$par,subject7_pas2$par,subject7_pas3$par,subject7_pas4$par)
+```
+
     ii. Plot the fits for the PAS ratings on a single plot (for subject 7) `xlim=c(0, 8)`
+```{r}
+
+```
+    
     iii. Create a similar plot for the PAS ratings on a single plot (for subject 7), but this time based on the model from 6.1 `xlim=c(0, 8)`   
     iv. Comment on the differences between the fits - mention some advantages and disadvantages of each way  
 2) Finally, estimate the parameters for all subjects and each of their four PAS ratings. Then plot the estimated function at the group-level by taking the mean for each of the four parameters, _a_, _b_, _c_ and _d_ across subjects. A function should be estimated for each PAS-rating (it should look somewhat similar to Fig. 3 from the article:  https://doi.org/10.1016/j.concog.2019.03.007)

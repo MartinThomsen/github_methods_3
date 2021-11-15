@@ -1,7 +1,7 @@
 ---
 title: "Portfolio assignment 1: Using mixed effects modelling to model hierarchical data"
 author: 'MARTIN THOMSEN'
-date: '22-09-2021'
+date: '15-11-2021'
 output:
   html_document:
     df_print: paged
@@ -23,7 +23,7 @@ In this assignment we will be investigating the _politeness_ dataset of Winter a
 Loading packages and omitting missing data:
 
 ```{r, message=FALSE, warning=FALSE}
-politeness <- read.csv('C:/Users/Bruger/Documents/Uni/7 semester/Multilevel statistical modeling and machine learning/github_methods_3/week_02/politeness.csv')
+politeness <- read.csv('politeness.csv')
  ## read in data
 library(dplyr)
 library(lme4)
